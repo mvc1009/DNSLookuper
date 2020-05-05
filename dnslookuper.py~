@@ -23,6 +23,11 @@ try:
 except:
 	print('[!] argparse is not installed. Try "pip install argparse"')
 	sys.exit(0)
+try:
+	import socket
+except:
+	print('[!] socket is not installed. Try "pip install socket"')
+
 
 #COLOR CODES
 BLACK = '\u001b[30m'
@@ -44,15 +49,38 @@ def banner():
 	print('|  --  |       |__     |       |  _  |  _  ||    <|  |  |  _  |  -__|   _|')
 	print('|_____/|__|____|_______|_______|_____|_____||__|__|_____|   __|_____|__|  ')
 	print('                                                        |__|  ')
-	#print('\n')
 	print("\t\t\t\t\t\t\t\tVersion 0.1")
 	print("\t\t\t\t\t\t\t\tBy: @mvc1009")
 	print('\n\n')
 
+def dnsquery(domain):
+	d=''
+	for a in domain.split('.'):
+		s = struct.Struct('!b'+str(len(a))+'s')
+		packed_data = s.pack(len(a),a.encode('utf-8')).decode('utf-8')
+		d = d + packed_data
+	l1 = "\x41\x41"
+	l2 = "\x01\x00"
+	l3 = "\x00\x01"
+	l4 = "\x00\x00"
+	l5 = "\x00\x00"
+	l6 = "\x00\x00"
+	header = l1 +l2 + l3 + l4 + l5 + l6
+	q = d + "\x00\x00\x01\x00\x01"
+	m = header + q
+	print(m)
+	print(m.encode("hex"))
+	return m
+
 def main():
 	banner()
 	
-	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py ', epilog='Thanks for using me!')
+	#parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py ', epilog='Thanks for using me!')
+
+	#global args
+	#args =  parser.parse_args()
+
+	dnsquery('www.google.es')
 
 
 try:
