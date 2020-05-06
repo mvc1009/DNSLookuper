@@ -31,6 +31,15 @@ try:
 except:
 	print('[!] socket is not installed. Try "pip install socket"')
 	sys.exit(0)
+try:
+	import json
+except:
+	print('[!] json is not installed. Try "pip install json"')
+	sys.exit(0)
+try:
+	import csv
+except:
+	print('[!] cvs is not installed. Try "pip install csv"')
 
 #COLOR CODES
 BLACK = '\u001b[30m'
@@ -69,9 +78,8 @@ def dnsQuery(query):
 		
 def readFile(file):
 	try:
-		f = open(file, 'r')
-		queries = f.read().split()
-		f.close()
+		with open(file, 'r') as f:
+			queries = f.read().split()
 		if args.verbose:
 			print('\n')
 			if args.color:
@@ -87,20 +95,17 @@ def readFile(file):
 	
 
 def main():
-
+	
 	# Parsing arguments
 	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py ', epilog='Thanks for using me!')
-	
 	parser.add_argument('-v', '--verbose', action='store_true', help='Turn verbose output on')
 	parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
 	group2 = parser.add_mutually_exclusive_group()
 	group2.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
 	group2.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
 	parser.add_argument('-s', '--server', action='store', dest='server', help='DNS server to query', default='8.8.8.8', type=str)
-	parser.add_argument('-o', '--output', action='store', dest='file', help='Write results to a file', type=str)
-	parser.add_argument('-f', '--format', action='store', dest='format', help='Fileformat to export results', choices = ['csv' ,'json'], default = 'csv' type=str)
-
-	
+	parser.add_argument('-o', '--output', action='store', dest='output', help='Write results to a file', type=str)
+	parser.add_argument('-f', '--format', action='store', dest='format', help='Fileformat to export results', choices = ['csv' ,'json'], default = 'csv', type=str)
 	global args
 	args =  parser.parse_args()
 
@@ -129,16 +134,17 @@ def main():
 	# DOMAIN / SUBDOMAINS
 	if args.domain or args.list:
 		# Defining a list with all the queries
+		results = list()
 		queries = list()
 		if args.domain:
-			queries.append()
+			queries.append(args.domain)
 		elif args.list:
 			queries = readFile(args.list)
 
 		# Making DNS resolutions for all queries
 		for query in queries:
 			response, answer = dnsQuery(query)
-			if response is not 'None':
+			if response != 'None':
 				if args.verbose:
 					if args.color:
 						print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
@@ -153,6 +159,7 @@ def main():
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
+				results.append({'DNS':query, 'IP':response})
 			else:
 				if args.verbose:
 					if args.color:
@@ -165,8 +172,23 @@ def main():
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
-
-
+		
+		# Export RESULTS
+		if args.output:
+			# CSV fileformat
+			if args.format == 'csv':
+				with open(args.output, mode='w+') as csv_file:
+					fieldnames = ['DNS', 'IP']
+					writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+					writer.writeheader()
+					for i in results:
+						writer.writerow(i)
+			# JSON fileformat
+			elif args.format == 'json':
+				with open(args.output, mode='w+') as json_file:
+					for i in results:
+						json.dump(i, json_file)
+				
 	else:
 		parser.print_help()
 		# ERROR MESSAGE, need a entry or a list of entries
