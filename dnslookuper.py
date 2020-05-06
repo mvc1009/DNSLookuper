@@ -113,7 +113,7 @@ def exportResults(results, fileformat):
 def main():
 	
 	# Parsing arguments
-	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py ', epilog='Thanks for using me!')
+	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py -D example.txt -o example_output --format json -v -c ', epilog='Thanks for using me!')
 	parser.add_argument('-v', '--verbose', action='store_true', help='Turn verbose output on')
 	parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
 	group1 = parser.add_mutually_exclusive_group()
