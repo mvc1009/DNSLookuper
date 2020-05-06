@@ -23,6 +23,7 @@ usage: dnslookuper.py [-h] [-v] [-c] [-d DOMAIN | -D LIST] [-s SERVER]
                       [-o OUTPUT] [-f {csv,json}] [-oA OUTPUTALLFORMATS]
 
 DNSLookuper is used for resolve DNS Queries. Example: $ python3 dnslookuper.py
+-D example.txt -o example_output --format json -v -c
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -40,6 +41,7 @@ optional arguments:
                         Fileformat to export results
   -oA OUTPUTALLFORMATS, --output-all-formats OUTPUTALLFORMATS
                         Export results with all formats (csv and json)
+
 
 ```
 
