@@ -27,11 +27,6 @@ except:
 	print('[!] argparse is not installed. Try "pip install argparse"')
 	sys.exit(0)
 try:
-	import socket
-except:
-	print('[!] socket is not installed. Try "pip install socket"')
-	sys.exit(0)
-try:
 	import json
 except:
 	print('[!] json is not installed. Try "pip install json"')
@@ -76,36 +71,59 @@ def dnsQuery(query):
 	except:
 		return 'None', 'None'
 		
-def readFile(file):
+def readFile():
 	try:
-		with open(file, 'r') as f:
+		with open(args.list, 'r') as f:
 			queries = f.read().split()
 		if args.verbose:
 			print('\n')
 			if args.color:
-				print(BLUE + '[+] List of Domains to resolve: ' + RESET + file )
+				print(RED + '[+] List of Domains to resolve: ' + RESET + args.list )
 			else:
-				print('[+] List of Domains to resolve: ' + file)
+				print('[+] List of Domains to resolve: ' + args.list)
 		return queries
 	except:
 		if args.color:
 			print(RED + '[!] File not found' + RESET)
 		else:
 			print('[!] File not found"')
-	
+		lsys.exit(0)
+def exportResults(results, fileformat):
+	# CSV fileformat
 
+	filename = args.output + '.' + fileformat
+	if args.verbose:
+		if args.color:
+			print(RED + '[+] Exporting results to: ' + RESET + filename)
+		else:
+			print('[+] Exporting results to: ' + filename)
+	if fileformat == 'csv':
+		with open(filename, mode='w+') as csv_file:
+			fieldnames = ['DNS', 'IP']
+			writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+			writer.writeheader()
+			for i in results:
+				writer.writerow(i)
+	# JSON fileformat
+	elif fileformat == 'json':
+		with open(filename, mode='w+') as json_file:
+			for i in results:
+				json.dump(i, json_file)
+	
 def main():
 	
 	# Parsing arguments
 	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py ', epilog='Thanks for using me!')
 	parser.add_argument('-v', '--verbose', action='store_true', help='Turn verbose output on')
 	parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
-	group2 = parser.add_mutually_exclusive_group()
-	group2.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
-	group2.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
+	group1 = parser.add_mutually_exclusive_group()
+	group1.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
+	group1.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
 	parser.add_argument('-s', '--server', action='store', dest='server', help='DNS server to query', default='8.8.8.8', type=str)
-	parser.add_argument('-o', '--output', action='store', dest='output', help='Write results to a file', type=str)
+	group2 = parser.add_mutually_exclusive_group()	
+	group2.add_argument('-o', '--output', action='store', dest='output', help='Export results to a file', type=str)
 	parser.add_argument('-f', '--format', action='store', dest='format', help='Fileformat to export results', choices = ['csv' ,'json'], default = 'csv', type=str)
+	group2.add_argument('-oA', '--output-all-formats', action='store', dest='outputallformats', help='Export results with all formats (csv and json)', type=str)
 	global args
 	args =  parser.parse_args()
 
@@ -139,7 +157,7 @@ def main():
 		if args.domain:
 			queries.append(args.domain)
 		elif args.list:
-			queries = readFile(args.list)
+			queries = readFile()
 
 		# Making DNS resolutions for all queries
 		for query in queries:
@@ -175,20 +193,11 @@ def main():
 		
 		# Export RESULTS
 		if args.output:
-			# CSV fileformat
-			if args.format == 'csv':
-				with open(args.output, mode='w+') as csv_file:
-					fieldnames = ['DNS', 'IP']
-					writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-					writer.writeheader()
-					for i in results:
-						writer.writerow(i)
-			# JSON fileformat
-			elif args.format == 'json':
-				with open(args.output, mode='w+') as json_file:
-					for i in results:
-						json.dump(i, json_file)
-				
+			exportResults(results, args.format)
+		elif args.outputallformats:
+			exportResults(results, 'cvs')
+			exportResults(results, 'json')
+
 	else:
 		parser.print_help()
 		# ERROR MESSAGE, need a entry or a list of entries
