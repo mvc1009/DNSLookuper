@@ -56,20 +56,24 @@ def banner():
 def dnsquery(domain):
 	d=''
 	for a in domain.split('.'):
-		s = struct.Struct('!b'+str(len(a))+'s')
-		packed_data = s.pack(len(a),a.encode('utf-8')).decode('utf-8')
-		d = d + packed_data
-	l1 = "\x41\x41"
-	l2 = "\x01\x00"
-	l3 = "\x00\x01"
-	l4 = "\x00\x00"
-	l5 = "\x00\x00"
-	l6 = "\x00\x00"
-	header = l1 +l2 + l3 + l4 + l5 + l6
-	q = d + "\x00\x00\x01\x00\x01"
+		#s = struct.Struct('!b'+str(len(a))+'s')
+		#packed_data = s.pack(len(a),a.encode('utf-8'))
+		s1 = struct.Struct('!b')
+		leng_data = s1.pack(len(a)).hex()
+		s2 = struct.Struct(str(len(a))+'s')
+		packed_data = s2.pack(a.encode('utf-8')).hex()
+		d = d + leng_data + packed_data
+	l1 = b'\x41\x41'
+	l2 = b'\x01\x00'
+	l3 = b'\x00\x01'
+	l4 = b'\x00\x00'
+	l5 = b'\x00\x00'
+	l6 = b'\x00\x00'
+	header = (l1 +l2 + l3 + l4 + l5 + l6).hex()
+	q = d + b'\x00\x00\x01\x00\x01'.hex()
 	m = header + q
-	print(m)
-	print(m.encode("hex"))
+	print("DNS query: " +m)
+	print("DNS query: " + bytes.fromhex(m))
 	return m
 
 def main():
