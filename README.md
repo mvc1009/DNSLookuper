@@ -10,9 +10,10 @@ DNSLookuper is a python tool to resolve DNS querys.
 ## Description &  Purpose
 Once obtain a list of subdomains, for a Red Team assessment is useful to discover which subdomain is associated to which host.
 
-Reccoinassence is one of the most important phase in a Red Team assessment so this tool helps you to "traduce" or resolve all DNS queries in an automatical way.
+Reconnaissance is one of the most important part in a Red Team assessment, so this tool helps you to "traduce" or resolve all DNS queries in an automatic way.
 
-DNSLookuper uses dnspython.
+DNSLookuper uses `dnspython`
+
 <p align="center">
 <img src="https://media.giphy.com/media/Zdl1PYZw4kz1dSuP61/giphy.gif">
 </p>
