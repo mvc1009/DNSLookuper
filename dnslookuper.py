@@ -91,7 +91,7 @@ def readFile():
 def exportResults(results, fileformat):
 	# CSV fileformat
 
-	filename = args.output + '.' + fileformat
+	filename = str(args.output) + '.' + str(fileformat)
 	if args.verbose:
 		if args.color:
 			print(RED + '[+] Exporting results to: ' + RESET + filename)
