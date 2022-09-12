@@ -107,8 +107,7 @@ def exportResults(results, fileformat):
 	# JSON fileformat
 	elif fileformat == 'json':
 		with open(filename, mode='w+') as json_file:
-			for i in results:
-				json.dump(i, json_file)
+			json.dump(results, json_file)
 	
 def main():
 	
@@ -206,10 +205,6 @@ def main():
 		else:
 			print('[!] Introduce a domain (-d, --domain) or a list of domains (-D, --list-domains)')
 	
-
-
-
-
 try:
 	if __name__ == "__main__":
 		main()
