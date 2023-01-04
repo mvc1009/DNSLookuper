@@ -8,17 +8,21 @@ DNSLookuper is a python tool to resolve DNS querys.
 </p>
 
 ## Description &  Purpose
+
 Once obtain a list of subdomains, for a Red Team assessment is useful to discover which subdomain is associated to which host.
 
 Reconnaissance is one of the most important part in a Red Team assessment, so this tool helps you to "traduce" or resolve all DNS queries in an automatic way. Also DNSLookuper provides you the opportunity to export the result data in `json` or `csv` fileformat.
 
-DNSLookuper uses `dnspython`
+DNSLookuper uses `dnspython`.
+
+It is also provided a python script `comparer.py` which determines which subdomain is part of the scope in the assessment. Useful when the scope is limited to X IPs.
 
 <p align="center">
 <img src="https://media.giphy.com/media/Zdl1PYZw4kz1dSuP61/giphy.gif">
 </p>
 
 ## Help
+
 ```
 usage: dnslookuper.py [-h] [-v] [-c] [-d DOMAIN | -D LIST] [-s SERVER]
                       [-o OUTPUT] [-f {csv,json}] [-oA OUTPUTALLFORMATS]

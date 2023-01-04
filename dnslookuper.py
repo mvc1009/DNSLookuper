@@ -36,6 +36,15 @@ try:
 except:
 	print('[!] cvs is not installed. Try "pip install csv"')
 
+import requests;
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+try:
+	from bs4 import BeautifulSoup
+except:
+	print('[!] BeautifulSoup is not installed')
+
 #COLOR CODES
 BLACK = '\u001b[30m'
 RED = '\u001b[31m'
@@ -115,6 +124,7 @@ def main():
 	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py -D example.txt -o example_output --format json -v -c ', epilog='Thanks for using me!')
 	parser.add_argument('-v', '--verbose', action='store_true', help='Turn verbose output on')
 	parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
+	parser.add_argument('-H', '--history', action='store_true', help='Search DNS History')
 	group1 = parser.add_mutually_exclusive_group()
 	group1.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
 	group1.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
@@ -189,7 +199,13 @@ def main():
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
-		
+			if args.history:
+				print(query)
+				viewdns_url = "https://viewdns.info/iphistory/"
+				r = requests.get(viewdns_url + "?domain=" + query, verify=False)
+				print(r.text)
+
+
 		# Export RESULTS
 		if args.output:
 			exportResults(results, args.format)
