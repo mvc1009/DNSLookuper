@@ -24,16 +24,18 @@ It is also provided a python script `comparer.py` which determines which subdoma
 ## Help
 
 ```
-usage: dnslookuper.py [-h] [-v] [-c] [-d DOMAIN | -D LIST] [-s SERVER]
-                      [-o OUTPUT] [-f {csv,json}] [-oA OUTPUTALLFORMATS]
+usage: dnslookuper.py [-h] [-v] [-c] [-C COMPARE] [-H] [-d DOMAIN | -D LIST] [-s SERVER] [-o OUTPUT]
+                      [-f {csv,json}] [-oA OUTPUTALLFORMATS]
 
-DNSLookuper is used for resolve DNS Queries. Example: $ python3 dnslookuper.py
--D example.txt -o example_output --format json -v -c
+DNSLookuper is used for resolve DNS Queries. Example: $ python3 dnslookuper.py -D example.txt -o example_output
+--format json -v -c
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -v, --verbose         Turn verbose output on
   -c, --color           Colorize DNSLookup output
+  -C COMPARE, --compare COMPARE
+                        Compare results to a list of IPs
   -d DOMAIN, --domain DOMAIN
                         Target domain
   -D LIST, --list-domains LIST
@@ -47,6 +49,7 @@ optional arguments:
   -oA OUTPUTALLFORMATS, --output-all-formats OUTPUTALLFORMATS
                         Export results with all formats (csv and json)
 
+Thanks for using me!
 
 ```
 
@@ -68,7 +71,23 @@ All required packages are inside `requierements.txt`
 
 3. Use:
 
-`$ python3 dnslookuper.py -D example.txt -o example_output --format json -v -c`
+`$ python3 dnslookuper.py -D example.txt -o example_output --format json -v -c --compare scope.txt`
 
+## Lib
 
+It can be also imported to use `dnslookuper` as a library.
 
+```python
+from dnslookuper import *
+
+dnslook = dnslookuper(domains=['test.com', 'example.test.com'],server="8.8.8.8", verbose=True, color=True)
+dnslook2 = dnslookuper(input_file='domains.txt',server="8.8.8.8", verbose=True, color=True)
+
+dnslook.resolve()
+dnslook.results
+dnslook.compare("scope.txt")
+dnslook.compared_results
+
+dnslook.export("out.json","json")
+dnslook.export("out.csv","csv")
+```

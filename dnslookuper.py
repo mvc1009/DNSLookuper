@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 #
 #
@@ -36,15 +36,6 @@ try:
 except:
 	print('[!] cvs is not installed. Try "pip install csv"')
 
-import requests;
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-try:
-	from bs4 import BeautifulSoup
-except:
-	print('[!] BeautifulSoup is not installed')
-
 #COLOR CODES
 BLACK = '\u001b[30m'
 RED = '\u001b[31m'
@@ -56,7 +47,6 @@ CYAN = '\u001b[36m'
 WHITE = '\u001b[37m'
 RESET = '\u001b[0m'
 
-
 # Display DNSLookuper Banner
 def banner():
 	print('\n\n')
@@ -65,115 +55,110 @@ def banner():
 	print('|  --  |       |__     |       |  _  |  _  ||    <|  |  |  _  |  -__|   _|')
 	print('|_____/|__|____|_______|_______|_____|_____||__|__|_____|   __|_____|__|  ')
 	print('                                                        |__|  ')
-	print("\t\t\t\t\t\t\t\tVersion 0.1")
+	print("\t\t\t\t\t\t\t\tVersion 1.1")
 	print("\t\t\t\t\t\t\t\tBy: @mvc1009")
-
 	print('\n\n')
 
-def dnsQuery(query):
-	my_resolver = dns.resolver.Resolver()
-	my_resolver.nameservers = [args.server]
+def readFile(file):
 	try:
-		answer = my_resolver.query(query)
-		for data in answer:
-			return str(data), str(answer)
+		with open(file, 'r') as f:
+			return f.read().split()
 	except:
-		return 'None', 'None'
-		
-def readFile():
-	try:
-		with open(args.list, 'r') as f:
-			queries = f.read().split()
-		if args.verbose:
-			print('\n')
-			if args.color:
-				print(RED + '[+] List of Domains to resolve: ' + RESET + args.list )
-			else:
-				print('[+] List of Domains to resolve: ' + args.list)
-		return queries
-	except:
-		if args.color:
-			print(RED + '[!] File not found' + RESET)
-		else:
-			print('[!] File not found"')
-		lsys.exit(0)
-def exportResults(results, fileformat):
-	# CSV fileformat
-
-	filename = str(args.output) + '.' + str(fileformat)
-	if args.verbose:
-		if args.color:
-			print(RED + '[+] Exporting results to: ' + RESET + filename)
-		else:
-			print('[+] Exporting results to: ' + filename)
-	if fileformat == 'csv':
-		with open(filename, mode='w+') as csv_file:
-			fieldnames = ['DNS', 'IP']
-			writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-			writer.writeheader()
-			for i in results:
-				writer.writerow(i)
-	# JSON fileformat
-	elif fileformat == 'json':
-		with open(filename, mode='w+') as json_file:
-			json.dump(results, json_file)
-	
-def main():
-	
-	# Parsing arguments
-	parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py -D example.txt -o example_output --format json -v -c ', epilog='Thanks for using me!')
-	parser.add_argument('-v', '--verbose', action='store_true', help='Turn verbose output on')
-	parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
-	parser.add_argument('-H', '--history', action='store_true', help='Search DNS History')
-	group1 = parser.add_mutually_exclusive_group()
-	group1.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
-	group1.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
-	parser.add_argument('-s', '--server', action='store', dest='server', help='DNS server to query', default='8.8.8.8', type=str)
-	group2 = parser.add_mutually_exclusive_group()	
-	group2.add_argument('-o', '--output', action='store', dest='output', help='Export results to a file', type=str)
-	parser.add_argument('-f', '--format', action='store', dest='format', help='Fileformat to export results', choices = ['csv' ,'json'], default = 'csv', type=str)
-	group2.add_argument('-oA', '--output-all-formats', action='store', dest='outputallformats', help='Export results with all formats (csv and json)', type=str)
-	global args
-	args =  parser.parse_args()
-
-	#Presentation
-	banner()
-
-	#Usage
-	if len(sys.argv) < 2:
-		parser.print_help()
+		print("[!] File not found")
 		sys.exit(0)
 
-	# Initial message
-	if args.color:
-		print(RED + '[!] Start resolving DNS queries' + RESET)
-	else:
-		print('[!] Start resolving DNS queries')
+class dnslookuper():
 
-	# DNS Server message
-	if args.verbose:
-		if args.color:
-			print(BLUE + '[+] DNS Server' + RESET)
+	domains = None
+	input_file = None
+	results = None
+	compared_results = None
+	server = None
+	scope = None
+	verbose = None
+	color = None
+	
+	
+	def __init__(self, domains=None, input_file=None, server="8.8.8.8", verbose=False, color=False):
+		self.domains = list()
+		self.results = list()
+		self.compared_results = list()
+		self.scope = list()
+
+		if domains:
+			self.domains = domains
+
+		self.verbose = verbose
+		self.color = color
+		self.server = server
+		self.input_file = input_file
+		if self.input_file:
+			self.domains = self.domains + readFile(input_file)
+
+
+	def __repr__(self):
+		return "<%s %s at %#x>" % (self.__class__.__name__, self.server, id(self))
+
+	def dnsQuery(self, query):
+		my_resolver = dns.resolver.Resolver()
+		my_resolver.nameservers = [self.server]
+		try:
+			answer = my_resolver.query(query)
+			for data in answer:
+				return str(data), str(answer)
+		except:
+			return 'None', 'None'
+	
+	def export(self, filename, fileformat):
+		if self.verbose:
+			if self.color:
+				print(RED + '[+] Exporting results to: ' + RESET + filename)
+			else:
+				print('[+] Exporting results to: ' + filename)
+		
+		# CSV
+		if fileformat == 'csv':
+			with open(filename, mode="w+") as csv_file:
+				fieldnames = ['DNS', 'IP']
+				writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+				writer.writeheader()
+				for i in self.results:
+					writer.writerow(i)
+		
+		# JSON
+		elif fileformat == 'json':
+			with open(filename, mode="w+") as json_file:
+				out = {
+					'server' : self.server,
+					'results' : self.results,
+					'scope' : self.scope,
+					'compared_results' : self.compared_results
+				}
+				json.dump(out, json_file)
+
+
+	def resolve(self, domains=None):
+		if self.verbose:
+			if self.color:
+				print(RED + '[!] Start resolving DNS queries' + RESET)
+				print(BLUE + '[+] DNS Server' + RESET + ': %s' % self.server)
+			else:
+				print('[!] Start resolving DNS queries')
+				print('[+] DNS Server: %s' % self.server)
+		
+		# Making DNS resolutions for all domains
+		
+		if domains:
+			list_domains = domains
+			print("teeest")
 		else:
-			print('[+] DNS Server')
-		print('\t' + args.server)
+			list_domains = self.domains
 
-	# DOMAIN / SUBDOMAINS
-	if args.domain or args.list:
-		# Defining a list with all the queries
-		results = list()
-		queries = list()
-		if args.domain:
-			queries.append(args.domain)
-		elif args.list:
-			queries = readFile()
-
-		# Making DNS resolutions for all queries
-		for query in queries:
-			response, answer = dnsQuery(query)
-			if response != 'None':
-				if args.verbose:
-					if args.color:
+		for query in list_domains:
+			response, answer = self.dnsQuery(query)
+			if response != None:
+				if self.verbose:
+					if self.color:
 						print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
 						print('\t' + str(answer))
 						print('\t' + YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)
@@ -182,47 +167,110 @@ def main():
 						print('\t' + str(answer))
 						print('\t' + query + ' -> ' + response)
 				else:
-					if args.color:
+					if self.color:
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
-				results.append({'DNS':query, 'IP':response})
+				self.results.append({'IP':response,'DNS':query})
+			
 			else:
-				if args.verbose:
-					if args.color:
+				if self.verbose:
+					if self.color:
 						print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
 					else:
 						print('[+] Query to resolve: ' + query)
 					print('\t No response for this query')
 				else:
-					if args.color:
+					if self.color:
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
-			if args.history:
-				print(query)
-				viewdns_url = "https://viewdns.info/iphistory/"
-				r = requests.get(viewdns_url + "?domain=" + query, verify=False)
-				print(r.text)
 
+	def compare(self, scope):
+		# Compare the results with a list of IPs
+		if self.verbose:
+			if self.color:
+				print(RED + "[!] Comparing Results" + RESET)
+			else:
+				print("[!] Comparing Results")
+		with open(scope, 'r') as f:
+			data = f.read().split('\n')
+			results = list()
+			for row in data:
+				if row:
+					self.scope.append(row)
+					if self.verbose:
+						if self.color:
+							print(BLUE + '[+] IP: ' + RESET + row )
+						else:
+							print('[+] IP: ' + row)
+					r = {"IP" : row, "DNS" : []}
+					for row2 in self.results:
+						if row2['IP'] == row:
+							if self.verbose:
+								if self.color:
+									print(YELLOW + row2['DNS'] + RESET)
+								else:
+									print(row2['DNS'])
+								r["DNS"].append(row2['DNS'])
+					results.append(r)
+		self.compared_results = results
 
-		# Export RESULTS
-		if args.output:
-			exportResults(results, args.format)
-		elif args.outputallformats:
-			exportResults(results, 'cvs')
-			exportResults(results, 'json')
-
-	else:
-		parser.print_help()
-		# ERROR MESSAGE, need a entry or a list of entries
-		if args.color:
-			print(RED + '[!] Introduce a domain (-d, --domain) or a list of domains (-D, --list-domains)' + RESET)
-		else:
-			print('[!] Introduce a domain (-d, --domain) or a list of domains (-D, --list-domains)')
-	
 try:
 	if __name__ == "__main__":
-		main()
+
+		# Parsing arguments
+		parser = argparse.ArgumentParser(description='DNSLookuper is used for resolve DNS Queries.\n\t\t\n Example: $ python3 dnslookuper.py -D example.txt -o example_output --format json -v -c ', epilog='Thanks for using me!')
+		parser.add_argument('-v', '--verbose', action='store_true', help='Turn verbose output on')
+		parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
+		parser.add_argument('-C', '--compare', action='store', dest='compare', help='Compare results to a list of IPs', type=str)
+		parser.add_argument('-H', '--history', action='store_true', help='Search DNS History')
+		group1 = parser.add_mutually_exclusive_group()
+		group1.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
+		group1.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
+		parser.add_argument('-s', '--server', action='store', dest='server', help='DNS server to query', default='8.8.8.8', type=str)
+		group2 = parser.add_mutually_exclusive_group()	
+		group2.add_argument('-o', '--output', action='store', dest='output', help='Export results to a file', type=str)
+		parser.add_argument('-f', '--format', action='store', dest='format', help='Fileformat to export results', choices = ['csv' ,'json'], default = 'csv', type=str)
+		group2.add_argument('-oA', '--output-all-formats', action='store', dest='outputallformats', help='Export results with all formats (csv and json)', type=str)
+		global args
+		args =  parser.parse_args()
+
+		if len(sys.argv) < 2:
+			parser.print_help()
+			sys.exit(0)
+
+		# Presentation
+		banner()
+#	def __init__(self, domains=None, input_file=None, server="8.8.8.8", verbose=False, color=False):
+
+		if args.domain or args.list:
+			# Program
+			if args.domain:
+				dnslook = dnslookuper([args.domain],server=args.server, verbose=args.verbose, color=args.color)
+			elif args.list:
+				dnslook = dnslookuper(input_file=args.list,server=args.server, verbose=args.verbose, color=args.color)
+			
+			# Resolving Queries
+			dnslook.resolve()
+
+			# Comparing Results
+			if args.compare:
+				dnslook.compare(args.compare)
+
+			# Exporting Results
+			if args.output:
+				dnslook.export(args.output, args.format)
+			elif args.outputallformats:
+				dnslook.export(args.output + '.json', 'json')
+				dnslook.export(args.output + '.csv', 'csv')
+		else:
+			parser.print_help()
+			if args.color:
+				print(RED + '[!] Introduce a domain (-d, --domain) or a list of domains (-D, --list-domains)' + RESET)
+			else:
+				print('[!] Introduce a domain (-d, --domain) or a list of domains (-D, --list-domains)')
+	
+
 except KeyboardInterrupt:
 	print("[!] Keyboard Interrupt. Shutting down")
