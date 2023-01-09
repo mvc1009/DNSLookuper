@@ -24,8 +24,8 @@ It is also implemented a **comparer** that find out which subdomains or domains 
 ## Help
 
 ```
-usage: dnslookuper.py [-h] [-v] [-c] [-C COMPARE] [-H] [-d DOMAIN | -D LIST] [-s SERVER] [-o OUTPUT]
-                      [-f {csv,json}] [-oA OUTPUTALLFORMATS]
+usage: dnslookuper.py [-h] [-v] [-c] [-C COMPARE] [-H] [-api VIEWDNS_API_KEY] [-d DOMAIN | -D LIST] [-s SERVER]
+                      [-o OUTPUT] [-f {csv,json}] [-oA OUTPUTALLFORMATS]
 
 DNSLookuper is used for resolve DNS Queries. Example: $ python3 dnslookuper.py -D example.txt -o example_output
 --format json -v -c
@@ -36,6 +36,9 @@ options:
   -c, --color           Colorize DNSLookup output
   -C COMPARE, --compare COMPARE
                         Compare results to a list of IPs
+  -H, --history         Search DNS History
+  -api VIEWDNS_API_KEY, --api-key-viewdns VIEWDNS_API_KEY
+                        ViewDNS api key (Needed if History is used!)
   -d DOMAIN, --domain DOMAIN
                         Target domain
   -D LIST, --list-domains LIST

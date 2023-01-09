@@ -36,6 +36,9 @@ try:
 except:
 	print('[!] cvs is not installed. Try "pip install csv"')
 
+import requests
+
+
 #COLOR CODES
 BLACK = '\u001b[30m'
 RED = '\u001b[31m'
@@ -46,6 +49,7 @@ MAGENTA = '\u001b[35m'
 CYAN = '\u001b[36m'
 WHITE = '\u001b[37m'
 RESET = '\u001b[0m'
+
 
 # Display DNSLookuper Banner
 def banner():
@@ -77,10 +81,13 @@ class dnslookuper():
 	scope = None
 	verbose = None
 	color = None
-	
+	history_results = None
+	viewdns_api_key = None
+
 	
 	def __init__(self, domains=None, input_file=None, server="8.8.8.8", verbose=False, color=False):
 		self.domains = list()
+		self.history_results = list()
 		self.results = list()
 		self.compared_results = list()
 		self.scope = list()
@@ -131,6 +138,7 @@ class dnslookuper():
 				out = {
 					'server' : self.server,
 					'results' : self.results,
+					'history_results' : self.history_results,
 					'scope' : self.scope,
 					'compared_results' : self.compared_results
 				}
@@ -150,28 +158,27 @@ class dnslookuper():
 		
 		if domains:
 			list_domains = domains
-			print("teeest")
 		else:
 			list_domains = self.domains
-
+		
+		results = list()
+		
 		for query in list_domains:
 			response, answer = self.dnsQuery(query)
 			if response != None:
 				if self.verbose:
 					if self.color:
 						print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
-						print('\t' + str(answer))
 						print('\t' + YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)
 					else:
 						print('[+] Query to resolve: ' + query)
-						print('\t' + str(answer))
 						print('\t' + query + ' -> ' + response)
 				else:
 					if self.color:
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
-				self.results.append({'IP':response,'DNS':query})
+				results.append({'IP':response,'DNS':query})
 			
 			else:
 				if self.verbose:
@@ -185,6 +192,8 @@ class dnslookuper():
 						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
 					else:
 						print(query + ' -> ' + response)
+		self.results += results
+		return results
 
 	def compare(self, scope):
 		# Compare the results with a list of IPs
@@ -215,6 +224,32 @@ class dnslookuper():
 								r["DNS"].append(row2['DNS'])
 					results.append(r)
 		self.compared_results = results
+	
+	
+	def viewdns(self, domain, viewdns_api_key):
+		if self.verbose:
+			if self.color:
+				print(YELLOW + "[+] Querying ViewDNS" + RESET)
+			else:
+				print("[+] Querying ViewDNS")
+		r = requests.get("https://api.viewdns.info/iphistory/?domain=%s&apikey=%s&output=json" % (domain, viewdns_api_key), verify=False)
+		if self.verbose:
+			print(r.json())
+		return r.json()['response']['records']
+
+	def history(self, viewdns_api_key):
+		if self.verbose:
+			if self.color:
+				print(RED + "[!] Searching History of IPs" + RESET)
+			else:
+				print("[!] Searching History of IPs")
+		for i in self.results:
+			if self.verbose:
+				if self.color:
+					print(GREEN + i['DNS'] + RESET)
+				else:
+					print(i['DNS'])
+			self.history_results.append({"domain" : i['DNS'], "history" : self.viewdns(i['DNS'], viewdns_api_key)})
 
 try:
 	if __name__ == "__main__":
@@ -225,6 +260,7 @@ try:
 		parser.add_argument('-c', '--color', action='store_true', help='Colorize DNSLookup output')
 		parser.add_argument('-C', '--compare', action='store', dest='compare', help='Compare results to a list of IPs', type=str)
 		parser.add_argument('-H', '--history', action='store_true', help='Search DNS History')
+		parser.add_argument('-api', '--api-key-viewdns', action='store', dest='viewdns_api_key', help='ViewDNS api key (Needed if History is used!)', type=str)
 		group1 = parser.add_mutually_exclusive_group()
 		group1.add_argument('-d', '--domain', action='store', dest='domain', help='Target domain', type=str)
 		group1.add_argument('-D', '--list-domains', action='store', dest='list', help='List of target domains', type=str)
@@ -257,6 +293,9 @@ try:
 			# Comparing Results
 			if args.compare:
 				dnslook.compare(args.compare)
+
+			if args.history:
+				dnslook.history(str(args.viewdns_api_key))
 
 			# Exporting Results
 			if args.output:
