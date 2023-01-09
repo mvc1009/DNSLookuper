@@ -15,7 +15,7 @@ Reconnaissance is one of the most important part in a Red Team assessment, so th
 
 DNSLookuper uses `dnspython`.
 
-It is also provided a python script `comparer.py` which determines which subdomain is part of the scope in the assessment. Useful when the scope is limited to X IPs.
+It is also implemented a **comparer** that find out which subdomains or domains are part of the scope in the assessment. Useful when the scope is limited to some IPs.
 
 <p align="center">
 <img src="https://media.giphy.com/media/Zdl1PYZw4kz1dSuP61/giphy.gif">
