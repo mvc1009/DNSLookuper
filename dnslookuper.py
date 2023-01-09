@@ -278,7 +278,6 @@ try:
 
 		# Presentation
 		banner()
-#	def __init__(self, domains=None, input_file=None, server="8.8.8.8", verbose=False, color=False):
 
 		if args.domain or args.list:
 			# Program
