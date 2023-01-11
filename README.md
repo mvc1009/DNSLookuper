@@ -21,6 +21,8 @@ It is also implemented a **comparer** that find out which subdomains or domains 
 <img src="https://media.giphy.com/media/Zdl1PYZw4kz1dSuP61/giphy.gif">
 </p>
 
+Finally we can check the history of the DNS resolution in order to bypass a WAF.
+
 ## Help
 
 ```
@@ -83,13 +85,15 @@ It can be also imported to use `dnslookuper` as a library.
 ```python
 from dnslookuper import *
 
-dnslook = dnslookuper(domains=['test.com', 'example.test.com'],server="8.8.8.8", verbose=True, color=True)
-dnslook2 = dnslookuper(input_file='domains.txt',server="8.8.8.8", verbose=True, color=True)
+dnslook = DNSLookuper(domains=['test.com', 'example.test.com'],server="8.8.8.8", verbose=True, color=True)
+dnslook2 = DNSLookuper(input_file='domains.txt',server="8.8.8.8", verbose=True, color=True)
 
 dnslook.resolve()
 dnslook.results
 dnslook.compare("scope.txt")
 dnslook.compared_results
+
+dnslook.history(viewnds_api_key)
 
 dnslook.export("out.json","json")
 dnslook.export("out.csv","csv")
