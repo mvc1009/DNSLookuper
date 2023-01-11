@@ -131,6 +131,7 @@ class dnslookuper():
 				writer.writeheader()
 				for i in self.results:
 					writer.writerow(i)
+			return None
 		
 		# JSON
 		elif fileformat == 'json':
@@ -143,6 +144,7 @@ class dnslookuper():
 					'compared_results' : self.compared_results
 				}
 				json.dump(out, json_file)
+			return out
 
 
 	def resolve(self, domains=None):
