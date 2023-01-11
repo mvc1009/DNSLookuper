@@ -71,7 +71,7 @@ def readFile(file):
 		print("[!] File not found")
 		sys.exit(0)
 
-class dnslookuper():
+class DNSLookuper():
 
 	domains = None
 	input_file = None
@@ -106,7 +106,7 @@ class dnslookuper():
 	def __repr__(self):
 		return "<%s %s at %#x>" % (self.__class__.__name__, self.server, id(self))
 
-	def dnsQuery(self, query):
+	def dns_query(self, query):
 		my_resolver = dns.resolver.Resolver()
 		my_resolver.nameservers = [self.server]
 		try:
@@ -166,7 +166,7 @@ class dnslookuper():
 		results = list()
 		
 		for query in list_domains:
-			response, answer = self.dnsQuery(query)
+			response, answer = self.dns_query(query)
 			if response != None:
 				if self.verbose:
 					if self.color:
@@ -284,9 +284,9 @@ try:
 		if args.domain or args.list:
 			# Program
 			if args.domain:
-				dnslook = dnslookuper([args.domain],server=args.server, verbose=args.verbose, color=args.color)
+				dnslook = DNSLookuper([args.domain],server=args.server, verbose=args.verbose, color=args.color)
 			elif args.list:
-				dnslook = dnslookuper(input_file=args.list,server=args.server, verbose=args.verbose, color=args.color)
+				dnslook = DNSLookuper(input_file=args.list,server=args.server, verbose=args.verbose, color=args.color)
 			
 			# Resolving Queries
 			dnslook.resolve()
