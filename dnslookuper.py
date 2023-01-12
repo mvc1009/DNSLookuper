@@ -237,6 +237,8 @@ class DNSLookuper():
 		r = requests.get("https://api.viewdns.info/iphistory/?domain=%s&apikey=%s&output=json" % (domain, viewdns_api_key), verify=False)
 		if self.verbose:
 			print(r.json())
+		if "do not have any records" in r.json()['response']['error']:
+			return list()
 		return r.json()['response']['records']
 
 	def history(self, viewdns_api_key):
