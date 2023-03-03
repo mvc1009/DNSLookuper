@@ -304,8 +304,8 @@ try:
 			if args.output:
 				dnslook.export(args.output, args.format)
 			elif args.outputallformats:
-				dnslook.export(args.output + '.json', 'json')
-				dnslook.export(args.output + '.csv', 'csv')
+				dnslook.export(args.outputallformats + '.json', 'json')
+				dnslook.export(args.outputallformats + '.csv', 'csv')
 		else:
 			parser.print_help()
 			if args.color:
