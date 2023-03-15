@@ -107,12 +107,15 @@ class DNSLookuper():
 		return "<%s %s at %#x>" % (self.__class__.__name__, self.server, id(self))
 
 	def dns_query(self, query):
+		# Return a list of DNS resolutions and the answer itself 
 		my_resolver = dns.resolver.Resolver()
 		my_resolver.nameservers = [self.server]
+		datas = list()
 		try:
 			answer = my_resolver.query(query)
 			for data in answer:
-				return str(data), str(answer)
+				datas.append(data)
+			return datas, str(answer)
 		except:
 			return 'None', 'None'
 	
@@ -166,34 +169,36 @@ class DNSLookuper():
 		results = list()
 		
 		for query in list_domains:
-			response, answer = self.dns_query(query)
-			if response != None:
-				if self.verbose:
-					if self.color:
-						print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
-						print('\t' + YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)
-					else:
-						print('[+] Query to resolve: ' + query)
-						print('\t' + query + ' -> ' + response)
-				else:
-					if self.color:
-						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
-					else:
-						print(query + ' -> ' + response)
-				results.append({'IP':response,'DNS':query})
+			response_list, answers = self.dns_query(query)
+			if response_list:
+				for response in response_list:
+					if response != None:
+						if self.verbose:
+							if self.color:
+								print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
+								print('\t' + YELLOW + query + RESET + ' -> ' + GREEN + str(response) + RESET)
+							else:
+								print('[+] Query to resolve: ' + query)
+								print('\t' + query + ' -> ' + str(response))
+						else:
+							if self.color:
+								print(YELLOW + query + RESET + ' -> ' + GREEN + str(response) + RESET)		
+							else:
+								print(query + ' -> ' + str(response))
+						results.append({'IP':str(response),'DNS':query})
 			
-			else:
-				if self.verbose:
-					if self.color:
-						print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
 					else:
-						print('[+] Query to resolve: ' + query)
-					print('\t No response for this query')
-				else:
-					if self.color:
-						print(YELLOW + query + RESET + ' -> ' + GREEN + response + RESET)		
-					else:
-						print(query + ' -> ' + response)
+						if self.verbose:
+							if self.color:
+								print(BLUE + '[+] Query to resolve: ' + YELLOW + query + RESET)
+							else:
+								print('[+] Query to resolve: ' + query)
+							print('\t No response for this query')
+						else:
+							if self.color:
+								print(YELLOW + query + RESET + ' -> ' + GREEN + str(response) + RESET)		
+							else:
+								print(query + ' -> ' + str(response))
 		self.results += results
 		return results
 
