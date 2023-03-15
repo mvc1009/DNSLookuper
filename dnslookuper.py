@@ -113,11 +113,13 @@ class DNSLookuper():
 		datas = list()
 		try:
 			answer = my_resolver.query(query)
-			for data in answer:
-				datas.append(data)
-			return datas, str(answer)
+			if answer:
+				for data in answer:
+					datas.append(data)
+				return datas, str(answer)
+			return ['None'], 'None'
 		except:
-			return 'None', 'None'
+			return ['None'], 'None'
 	
 	def export(self, filename, fileformat):
 		if self.verbose:
