@@ -68,7 +68,7 @@ def readFile(file):
 	if os.path.isfile(file):
 		with open(file, 'r') as f:
 			return f.read().split()
-			
+
 	print("[!] File not found")
 	sys.exit(0)
 
