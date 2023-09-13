@@ -64,12 +64,13 @@ def banner():
 	print('\n\n')
 
 def readFile(file):
-	try:
+	
+	if os.path.isfile(file):
 		with open(file, 'r') as f:
 			return f.read().split()
-	except:
-		print("[!] File not found")
-		sys.exit(0)
+			
+	print("[!] File not found")
+	sys.exit(0)
 
 class DNSLookuper():
 
@@ -85,22 +86,20 @@ class DNSLookuper():
 	viewdns_api_key = None
 
 	
-	def __init__(self, domains=None, input_file=None, server="8.8.8.8", verbose=False, color=False):
-		self.domains = list()
+	def __init__(self, domains=[], input_file=None, server="8.8.8.8", verbose=False, color=False):
+
 		self.history_results = list()
 		self.results = list()
 		self.compared_results = list()
 		self.scope = list()
 
-		if domains:
-			self.domains = domains
-
+		self.domains = domains
 		self.verbose = verbose
 		self.color = color
 		self.server = server
 		self.input_file = input_file
 		if self.input_file:
-			self.domains = self.domains + readFile(input_file)
+			self.domains += readFile(input_file)
 
 
 	def __repr__(self):
@@ -152,7 +151,7 @@ class DNSLookuper():
 			return out
 
 
-	def resolve(self, domains=None):
+	def resolve(self, domains=[]):
 		if self.verbose:
 			if self.color:
 				print(RED + '[!] Start resolving DNS queries' + RESET)
@@ -168,7 +167,7 @@ class DNSLookuper():
 		else:
 			list_domains = self.domains
 		
-		results = list()
+		results = []
 		
 		for query in list_domains:
 			response_list, answers = self.dns_query(query)
